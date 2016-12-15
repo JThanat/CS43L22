@@ -44,6 +44,8 @@ I2S_HandleTypeDef hi2s3;
 
 TIM_HandleTypeDef htim1;
 
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -56,6 +58,7 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -63,6 +66,19 @@ static void MX_TIM1_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void initializeAudio(){
+	int dummy[1];
+	dummy[0] = 0;
+	/* rest CS43L22 Chip */
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);
+	HAL_Delay(500);
+	/* signal show that pin has been reset */
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
+}
+
+void toggleNote(){
+
+}
 
 /* USER CODE END 0 */
 
@@ -70,7 +86,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	initializeAudio();
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -86,6 +102,7 @@ int main(void)
   MX_I2C1_Init();
   MX_I2S3_Init();
   MX_TIM1_Init();
+  MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -225,6 +242,25 @@ static void MX_TIM1_Init(void)
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
+/* USART2 init function */
+static void MX_USART2_UART_Init(void)
+{
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
